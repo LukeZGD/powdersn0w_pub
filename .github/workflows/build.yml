@@ -9,19 +9,19 @@ jobs:
       - name: Run compile script
         run: |
           cd ./xpwn
-          ./compile.sh all
+          ./compile.sh
           mv bin/ ..
           cd ..
 
       - name: Zip files
-        run: zip -r powdersn0w_linux.zip bin/
+        run: zip -r powdersn0w_tools_linux.zip bin/
 
       - name: Update latest release
         uses: pyTooling/Actions/releaser@main
         with:
           tag: latest
           token: ${{ secrets.GITHUB_TOKEN }}
-          files: powdersn0w_linux.zip
+          files: powdersn0w_tools_linux.zip
 
   xpwn-win:
     runs-on: windows-latest
@@ -39,11 +39,11 @@ jobs:
       - name: Run compile script
         run: |
           cd ./xpwn
-          ./compile.sh all
+          ./compile.sh
           mv bin/ ..
           cd ..
 
       - uses: actions/upload-artifact@v3
         with:
-          name: powdersn0w_win
+          name: powdersn0w_tools_win
           path: bin/

@@ -70,7 +70,7 @@ IF(APPLE)
 	ADD_CUSTOM_TARGET(libXPwn.a
 		COMMAND powerpc-apple-darwin8-libtool -static -o libXPwn.a
 			${PROJECT_BINARY_DIR}/ipsw-patch/libxpwn.a ${PROJECT_BINARY_DIR}/minizip/libminizip.a
-			${PROJECT_BINARY_DIR}/common/libcommon.a ${PROJECT_BINARY_DIR}/hfs/libhfs.a 
+			${PROJECT_BINARY_DIR}/common/libcommon.a ${PROJECT_BINARY_DIR}/hfs/libhfs.a
 			${PROJECT_BINARY_DIR}/dmg/libdmg.a ${PNG_LIBRARIES} ${BZIP2_LIBRARIES}
 			${CRYPTO_LIBRARIES}
 		DEPENDS xpwn dmg hfs common minizip)
@@ -91,22 +91,9 @@ IF(WIN32)
 	TARGET_LINK_LIBRARIES(xpwn gdi32)
 ENDIF(WIN32)
 
-add_executable(ipsw main.c)
-target_link_libraries(ipsw xpwn)
-
-add_executable(validate validate.c)
-target_link_libraries(validate xpwn)
-
-add_executable(ticket ticket.c)
-target_link_libraries(ticket xpwn)
-
 IF(WIN32)
 	ADD_EXECUTABLE(itunespwn itunespwn.c)
 	TARGET_LINK_LIBRARIES(itunespwn xpwn gdi32)
 	install(TARGETS itunespwn RUNTIME DESTINATION .)
 ENDIF(WIN32)
-
-install(TARGETS ipsw validate ticket RUNTIME DESTINATION .)
-install(DIRECTORY FirmwareBundles/ DESTINATION FirmwareBundles)
-install(DIRECTORY bundles/ DESTINATION bundles)
 

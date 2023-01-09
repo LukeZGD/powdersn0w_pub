@@ -165,9 +165,13 @@ build() {
     mkdir bin new 2>/dev/null
     cd new
     $cmake ..
-    make $arg
+    make
 
-    cp ipsw-patch/ipsw ../bin/${ipsw}_$platform
+    if [[ $platform == "win" ]]; then
+        cp tools/*patcher.exe ../bin/
+    else
+        cp tools/*patcher ../bin/
+    fi
     cd ..
 
     if [[ $1 == "all" ]]; then
