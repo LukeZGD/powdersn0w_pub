@@ -26,29 +26,26 @@ prepare() {
         lib=/opt/local/lib
         cmake=/opt/local/bin/cmake
 
-        if [[ ! -d ${lib}2 ]]; then
+        if [[ $1 == undo ]]; then
+            sudo mv ${lib}2/* ${lib}
+            sudo rm -rf ${lib}2
+            exit 0
+        elif [[ ! -d ${lib}2 ]]; then
             if [[ ! -e $port ]]; then
                 echo "MacPorts not installed!"
                 exit 1
             fi
-
-            if [[ $1 == undo ]]; then
-                sudo mv ${lib}2/* ${lib}
-                sudo rm -rf ${lib}2
-                exit 0
-            elif [[ ! -d ${lib}2 ]]; then
-                sudo $port install -N zlib +universal
-                sudo $port install -N openssl +universal
-                sudo $port install -N bzip2 +universal
-                sudo $port install -N libpng +universal
-                sudo $port install -N cmake
-                sudo mkdir ${lib}2
-                sudo mv $lib/libbz2.dylib $lib/libcrypto.dylib $lib/libz.dylib $lib/libpng*.dylib $lib/libssl*.dylib ${lib}2
-            fi
+            sudo $port -N install zlib +universal
+            sudo $port -N install openssl +universal
+            sudo $port -N install bzip2 +universal
+            sudo $port -N install libpng +universal
+            sudo $port -N install cmake
+            sudo mkdir ${lib}2
+            sudo mv $lib/libbz2.dylib $lib/libcrypto.dylib $lib/libz.dylib $lib/libpng*.dylib $lib/libssl*.dylib ${lib}2
         fi
 
     elif [[ $OSTYPE == "linux"* ]]; then
-        sslver="1.1.1s"
+        sslver="1.1.1w"
         platform="linux"
         echo "* Platform: Linux"
         . /etc/os-release
