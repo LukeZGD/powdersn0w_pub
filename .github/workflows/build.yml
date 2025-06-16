@@ -32,28 +32,3 @@ jobs:
           tag: latest
           token: ${{ secrets.GITHUB_TOKEN }}
           files: powdersn0w_linux-${{ matrix.arch.name }}.zip
-
-  # xpwn-win:
-  #   runs-on: windows-latest
-  #   defaults:
-  #     run:
-  #       shell: msys2 {0}
-  #   steps:
-  #     - uses: actions/checkout@v3
-  #
-  #     - uses: msys2/setup-msys2@v2
-  #       with:
-  #         msystem: MSYS
-  #         update: true
-  #
-  #     - name: Run compile script
-  #       run: |
-  #         cd ./xpwn
-  #         ./compile.sh all
-  #         mv bin/ ..
-  #         cd ..
-  #
-  #     - uses: actions/upload-artifact@v3
-  #       with:
-  #         name: powdersn0w_win
-  #         path: bin/
