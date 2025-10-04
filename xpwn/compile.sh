@@ -5,16 +5,12 @@ cmake=/usr/bin/cmake
 
 for i in "$@"; do
     if [[ $i == "help" ]]; then
-        echo "Usage: $0 <all> <help> <undo>"
-        echo "    <all>: powdersn0w and daibutsu"
-        echo "    <daibutsu>: Build daibutsu"
+        echo "Usage: $0 <help> <undo>"
         echo "    <help>: Display this help prompt"
         echo "    <undo>: Undo preparation (macOS only)"
         exit 0
     elif [[ $i == "all" ]]; then
         echo "* Build all"
-    elif [[ $i == "daibutsu" ]]; then
-        daibutsu=1
     fi
 done
 
@@ -146,46 +142,15 @@ prepare() {
 }
 
 build() {
-    ipsw=powdersn0w
-    cd ipsw-patch
-    if [[ $daibutsu == 1 ]]; then
-        ipsw=daibutsu
-        mv main.c main2.c
-        mv daibutsu.c main.c
-    elif [[ -e ipsw-patch/main2.c ]]; then
-        mv main.c daibutsu.c
-        mv main2.c main.c
-    fi
-    cd ..
-
     rm -rf new
     mkdir bin new 2>/dev/null
+
     cd new
     $cmake ..
-    make $arg
-
-    cp ipsw-patch/ipsw ../bin/${ipsw}_$platform
+    make all
+    cp ipsw-patch/ipsw ../bin/powdersn0w
+    cp ipsw-patch/validate ../bin
     cd ..
-
-    if [[ $1 == "all" ]]; then
-        rm -rf new/*
-        mv bin/ipsw_$platform bin/powdersn0w_$platform
-        cd ipsw-patch
-        mv main.c main2.c
-        mv daibutsu.c main.c
-        cd ../new
-        $cmake ..
-        make
-        cp ipsw-patch/ipsw ../bin/daibutsu_$platform
-        cp ipsw-patch/validate ../bin
-        cd ..
-    fi
-    if [[ $1 == "all" || $daibutsu == 1 ]]; then
-        cd ipsw-patch
-        mv main.c daibutsu.c
-        mv main2.c main.c
-        cd ..
-    fi
 
     rm -rf new
     echo "Done! Builds at bin/"
