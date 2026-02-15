@@ -27,8 +27,13 @@ jobs:
         run: zip -r powdersn0w_linux-${{ matrix.arch.name }}.zip bin/
 
       - name: Update latest release
-        uses: pyTooling/Actions/releaser/composite@main
-        with:
-          tag: latest
-          token: ${{ secrets.GITHUB_TOKEN }}
-          files: powdersn0w_linux-${{ matrix.arch.name }}.zip
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh release upload latest \
+            powdersn0w_linux-${{ matrix.arch.name }}.zip \
+            --clobber -R ${{ github.repository }}
+
+          gh release edit latest \
+            --title "Latest" \
+            --target ${{ github.sha }} -R ${{ github.repository }}
