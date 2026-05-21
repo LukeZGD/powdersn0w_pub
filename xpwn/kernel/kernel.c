@@ -652,7 +652,7 @@ static int find_lwvm_offset(unsigned char* buf, struct macho_address *addr, stru
             
         } else {
             // 9.0-9.2.1
-            if(!(offset->mapForIO = find_mapForIO(addr->text_base, buf+addr->text_buf_base, addr->text_size))) {
+            if(!(offset->mapForIO = find_mapForIO_84(addr->text_base, buf+addr->text_buf_base, addr->text_size))) {
                 FAIL(FLAG_FIND, "mapForIO");
                 goto end;
             }
