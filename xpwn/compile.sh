@@ -17,6 +17,7 @@ prepare() {
     if [[ $OSTYPE == "darwin"* ]]; then
         platform="macos"
         echo "* Platform: macOS"
+        trap "cleanup" INT TERM EXIT
         port=/opt/local/bin/port
         lib=/opt/local/lib
         export OPENSSL_ROOT_DIR="/opt/local/libexec/openssl11"
@@ -202,4 +203,3 @@ cleanup() {
 
 prepare $1
 build $1
-cleanup
