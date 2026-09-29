@@ -5,9 +5,8 @@ cmake=/usr/bin/cmake
 
 for i in "$@"; do
     if [[ $i == "help" ]]; then
-        echo "Usage: $0 <help> <undo>"
+        echo "Usage: $0 <help>"
         echo "    <help>: Display this help prompt"
-        echo "    <undo>: Undo preparation (macOS only)"
         exit 0
     elif [[ $i == "all" ]]; then
         echo "* Build all"
@@ -20,25 +19,57 @@ prepare() {
         echo "* Platform: macOS"
         port=/opt/local/bin/port
         lib=/opt/local/lib
-        cmake=/opt/local/bin/cmake
+        export OPENSSL_ROOT_DIR="/opt/local/libexec/openssl11"
 
-        if [[ $1 == undo ]]; then
-            sudo mv ${lib}2/* ${lib}
-            sudo rm -rf ${lib}2
-            exit 0
-        elif [[ ! -d ${lib}2 ]]; then
-            if [[ ! -e $port ]]; then
-                echo "MacPorts not installed!"
+        export PATH="$PATH:/Applications/CMake.app/Contents/bin"
+        cmake=$(command -v cmake)
+        if [[ -z $cmake ]]; then
+            VERS=`sw_vers -productVersion`
+            VMAJ=`echo $VERS |cut -d "." -f 1`
+            VMIN=`echo $VERS |cut -d "." -f 2`
+
+            # cmake
+            if [ $VMAJ -le 10 ] && [ $VMIN -lt 13 ]; then
+            if [ $VMIN -lt 10 ]; then
+                # < macOS 10.10
+                CMAKE_URL=https://github.com/Kitware/CMake/releases/download/v3.18.6/cmake-3.18.6-Darwin-x86_64.tar.gz
+                CMAKE_HASH=fe09f28c2bfe26a7b7daf0ff9444175f410bae36
+            else
+                # >= macOS 10.10
+                CMAKE_URL=https://github.com/Kitware/CMake/releases/download/v3.20.1/cmake-3.20.1-macos10.10-universal.tar.gz
+                CMAKE_HASH=668e554a7fa7ad57eaf73d374774afd7fd25f98f
+            fi
+            else
+                # >= macOS 10.13
+                CMAKE_URL=https://github.com/Kitware/CMake/releases/download/v3.20.1/cmake-3.20.1-macos-universal.tar.gz
+                CMAKE_HASH=43cc6b91ca2ec711f3a1a3eafb970f9389e795e2
+            fi
+
+            echo "*** Installing cmake (in-tree)"
+            CMAKE_TGZ=`basename $CMAKE_URL`
+            echo "-- Downloading cmake"
+            curl -L -o "$CMAKE_TGZ" "$CMAKE_URL" || exit 1
+            CMAKE_PATH="`basename $CMAKE_TGZ .tar.gz`"
+            echo "-- Extracting cmake (in tree)"
+            tar xzf "$CMAKE_TGZ"
+            cp -r "$CMAKE_PATH/CMake.app" /Applications
+            cmake=$(command -v cmake)
+            if [[ -z $cmake ]]; then
+                echo "FATAL: cmake not found in \$PATH after trying to install it locally?!"
                 exit 1
             fi
-            sudo $port -N install zlib +universal
-            sudo $port -N install openssl +universal
-            sudo $port -N install bzip2 +universal
-            sudo $port -N install libpng +universal
-            sudo $port -N install cmake
-            sudo mkdir ${lib}2
-            sudo mv $lib/libbz2.dylib $lib/libcrypto.dylib $lib/libz.dylib $lib/libpng*.dylib $lib/libssl*.dylib ${lib}2
+            echo "* cmake: done"
         fi
+
+        if [[ ! -e $port ]]; then
+            echo "MacPorts not installed!"
+            exit 1
+        fi
+        sudo $port -N install openssl11
+        sudo $port -N install libpng
+        sudo mkdir -p ${lib}2 $OPENSSL_ROOT_DIR/lib2
+        sudo mv $lib/libpng*.dylib ${lib}2/
+        sudo mv $OPENSSL_ROOT_DIR/lib/*.dylib $OPENSSL_ROOT_DIR/lib2/
 
     elif [[ $OSTYPE == "linux"* ]]; then
         sslver="1.1.1w"
@@ -162,5 +193,13 @@ build() {
     echo "Done! Builds at bin/"
 }
 
+cleanup() {
+    if [[ $OSTYPE == "darwin"* ]]; then
+        sudo mv ${lib}2/*.dylib $lib/
+        sudo mv $OPENSSL_ROOT_DIR/lib2/*.dylib $OPENSSL_ROOT_DIR/lib/
+    fi
+}
+
 prepare $1
 build $1
+cleanup

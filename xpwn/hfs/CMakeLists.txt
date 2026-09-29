@@ -5,9 +5,8 @@ IF(NOT ZLIB_FOUND)
 ENDIF(NOT ZLIB_FOUND)
 
 include_directories(${ZLIB_INCLUDE_DIR})
-link_directories(${ZLIB_LIBRARIES} ${PROJECT_BINARY_DIR}/dmg)
 
-link_directories (${PROJECT_BINARY_DIR}/common)
+link_directories(${PROJECT_BINARY_DIR}/dmg ${PROJECT_BINARY_DIR}/common)
 add_library(hfs btree.c catalog.c extents.c xattr.c fastunicodecompare.c flatfile.c hfslib.c rawfile.c utility.c volume.c hfscompress.c)
 target_link_libraries(hfs common z)
 

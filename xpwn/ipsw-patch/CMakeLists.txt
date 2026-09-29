@@ -3,23 +3,11 @@ INCLUDE(FindBZip2)
 INCLUDE(FindPNG)
 INCLUDE(FindOpenSSL)
 
-FIND_LIBRARY(CRYPTO_LIBRARIES crypto
-      PATHS
-      /usr/lib
-      /usr/local/lib
-      ${CMAKE_FIND_ROOT_PATH}/lib
-      ${CMAKE_FIND_ROOT_PATH}/local/lib
-   )
-
 find_package(Threads REQUIRED)
 
 IF(NOT ZLIB_FOUND)
 	message(FATAL_ERROR "zlib is required for ipsw!")
 ENDIF(NOT ZLIB_FOUND)
-
-IF(NOT CRYPTO_LIBRARIES)
-	message(FATAL_ERROR "libcrypto is required for ipsw!")
-ENDIF(NOT CRYPTO_LIBRARIES)
 
 IF(NOT BZIP2_FOUND)
 	message(FATAL_ERROR "libbz2 is required for ipsw!")
@@ -40,9 +28,7 @@ link_directories(${ZLIB_LIBRARIES})
 ENDIF(NOT APPLE)
 
 include_directories(${BZIP2_INCLUDE_DIR})
-link_directories(${BZIP2_LIBRARIES})
 include_directories(${PNG_INCLUDE_DIR})
-link_directories(${PNG_LIBRARIES})
 include_directories(${OPENSSL_INCLUDE_DIR})
 
 include_directories(${PROJECT_SOURCE_DIR}/minizip)
@@ -60,7 +46,7 @@ IF(HAVE_HW_CRYPTO)
 	target_link_libraries(xpwn IOKit)
 ENDIF(HAVE_HW_CRYPTO)
 
-target_link_libraries(xpwn dmg hfs common asr iboot kernel minizip ${CRYPTO_LIBRARIES} ${BZIP2_LIBRARIES} ${PNG_LIBRARIES} ${OPENSSL_LIBRARIES} m ${CMAKE_DL_LIBS} ${CMAKE_THREAD_LIBS_INIT})
+target_link_libraries(xpwn dmg hfs common asr iboot kernel minizip ${OPENSSL_LIBRARIES} ${BZIP2_LIBRARIES} ${PNG_LIBRARIES} m ${CMAKE_DL_LIBS} ${CMAKE_THREAD_LIBS_INIT})
 
 IF(NOT APPLE)
 	target_link_libraries(xpwn ${ZLIB_LIBRARIES})
@@ -70,7 +56,7 @@ IF(APPLE)
 	ADD_CUSTOM_TARGET(libXPwn.a
 		COMMAND powerpc-apple-darwin8-libtool -static -o libXPwn.a
 			${PROJECT_BINARY_DIR}/ipsw-patch/libxpwn.a ${PROJECT_BINARY_DIR}/minizip/libminizip.a
-			${PROJECT_BINARY_DIR}/common/libcommon.a ${PROJECT_BINARY_DIR}/hfs/libhfs.a 
+			${PROJECT_BINARY_DIR}/common/libcommon.a ${PROJECT_BINARY_DIR}/hfs/libhfs.a
 			${PROJECT_BINARY_DIR}/dmg/libdmg.a ${PNG_LIBRARIES} ${BZIP2_LIBRARIES}
 			${CRYPTO_LIBRARIES}
 		DEPENDS xpwn dmg hfs common minizip)
