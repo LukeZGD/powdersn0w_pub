@@ -72,12 +72,18 @@ int main(int argc, char* argv[]) {
     Dictionary* info;
     Dictionary* firmwarePatches;
     Dictionary* patchDict;
+    ArrayValue* patchArray;
 
     void* buffer;
+
+    StringValue* actionValue;
+    StringValue* pathValue;
 
     StringValue* fileValue;
 
     BoolValue* patchValue;
+    StringValue* patchValue2;
+    char* patchPath;
 
     char* rootFSPathInIPSW;
     io_func* rootFS;
@@ -1155,6 +1161,34 @@ int main(int argc, char* argv[]) {
     if(rootSize > minimumRootSize) {
         XLOG(0, "Growing root: %ld\n", (long) preferredRootSize); fflush(stdout);
         grow_hfs(rootVolume, rootSize);
+    }
+
+    firmwarePatches = (Dictionary*)getValueByKey(info, "FilesystemPatches");
+    patchArray = firmwarePatches ? (ArrayValue*) firmwarePatches->values : NULL;
+    while(patchArray != NULL) {
+        for(i = 0; i < patchArray->size; i++) {
+            patchDict = (Dictionary*) patchArray->values[i];
+            fileValue = (StringValue*) getValueByKey(patchDict, "File");
+
+            actionValue = (StringValue*) getValueByKey(patchDict, "Action");
+            if(strcmp(actionValue->value, "ReplaceKernel") == 0) {
+                pathValue = (StringValue*) getValueByKey(patchDict, "Path");
+                XLOG(0, "replacing kernel... %s -> %s\n", fileValue->value, pathValue->value); fflush(stdout);
+                add_hfs(rootVolume, getFileFromOutputState(&outputState, fileValue->value), pathValue->value);
+            } if(strcmp(actionValue->value, "Patch") == 0) {
+                patchValue2 = (StringValue*) getValueByKey(patchDict, "Patch");
+                patchPath = (char*) malloc(sizeof(char) * (strlen(bundlePath) + strlen(patchValue2->value) + 2));
+                strcpy(patchPath, bundlePath);
+                strcat(patchPath, "/");
+                strcat(patchPath, patchValue2->value);
+
+                XLOG(0, "patching %s (%s)... ", fileValue->value, patchPath);
+                doPatchInPlace(rootVolume, fileValue->value, patchPath);
+                free(patchPath);
+            }
+        }
+
+        patchArray = (ArrayValue*) patchArray->dValue.next;
     }
 
     if(usepunchd) {
