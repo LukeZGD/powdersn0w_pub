@@ -31,6 +31,7 @@ const char *componentName(unsigned int magic) {
         case 'chg1': return "BatteryCharging1";
         case 'glyC': return "BatteryCharging";
         case 'glyP': return "BatteryPlugin";
+        case 'nsrv': return "NeedService";
         default:
             XLOG(0, "unknown magic %08x\n", magic);
             exit(1);
