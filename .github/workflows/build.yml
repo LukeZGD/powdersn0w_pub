@@ -19,7 +19,7 @@ jobs:
       - name: Run compile script
         run: |
           cd ./xpwn
-          ./compile.sh all
+          ./compile.sh
           mv bin/ ..
           cd ..
 

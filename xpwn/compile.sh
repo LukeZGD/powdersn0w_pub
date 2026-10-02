@@ -1,6 +1,5 @@
 #!/bin/bash
 
-arg="ipsw"
 cmake=/usr/bin/cmake
 
 for i in "$@"; do
@@ -145,34 +144,6 @@ prepare() {
             rm -rf tmp
         fi
 
-    elif [[ $OSTYPE == "msys" ]]; then
-        platform="win"
-        echo "* Platform: Windows MSYS2"
-
-        if [[ ! -e /usr/lib/libpng.a ]]; then
-            echo "* Note that if your msys-runtime is outdated, MSYS2 prompt may close after updating."
-            echo "* If this happens, reopen the MSYS2 prompt and run the script again"
-            pacman -Syu --noconfirm --needed cmake git libbz2-devel make msys2-devel openssl-devel zip zlib-devel
-            mkdir tmp
-            cd tmp
-            git clone https://github.com/glennrp/libpng
-            cd libpng
-            ./configure
-            make
-            make install
-            cd ..
-
-            curl -LO https://opensource.apple.com/tarballs/cctools/cctools-927.0.2.tar.gz
-            mkdir cctools-tmp /usr/local/include
-            tar -xzf cctools-927.0.2.tar.gz -C cctools-tmp/
-            sed -i 's_#include_//_g' cctools-tmp/*cctools-927.0.2/include/mach-o/loader.h
-            sed -i -e 's=<stdint.h>=\n#include <stdint.h>\ntypedef int integer_t;\ntypedef integer_t cpu_type_t;\ntypedef integer_t cpu_subtype_t;\ntypedef integer_t cpu_threadtype_t;\ntypedef int vm_prot_t;=g' cctools-tmp/*cctools-927.0.2/include/mach-o/loader.h
-            cp -r cctools-tmp/*cctools-927.0.2/include/* /usr/local/include/
-
-            cd ..
-            rm -rf tmp
-        fi
-
     else
         echo "[Error] Unsupported platform"
         exit 1
@@ -180,16 +151,28 @@ prepare() {
 }
 
 build() {
-    rm -rf new
-    mkdir bin new 2>/dev/null
-
+    rm -rf bin new
+    mkdir -p bin new
     cd new
     $cmake ..
     make all
-    cp ipsw-patch/ipsw ../bin/powdersn0w
-    cp ipsw-patch/validate ../bin
-    cd ..
 
+    if [[ $1 == "all" ]]; then
+        cp common/libcommon.a ../bin
+        cp dmg/dmg ../bin
+        cp hdutil/hdutil ../bin
+        cp hfs/hfsplus ../bin
+        cp ipsw-patch/imagetool ../bin
+        cp ipsw-patch/ipsw ../bin
+        cp ipsw-patch/xpwntool ../bin
+        cp ipsw-patch/libxpwn.a ../bin
+    else
+        cp ipsw-patch/ipsw ../bin/powdersn0w
+        cp ipsw-patch/ticket ../bin/
+        cp ipsw-patch/validate ../bin/
+    fi
+
+    cd ..
     rm -rf new
     echo "Done! Builds at bin/"
 }
