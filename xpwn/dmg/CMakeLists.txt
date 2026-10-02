@@ -10,7 +10,6 @@ IF(NOT ZLIB_FOUND)
 ENDIF(NOT ZLIB_FOUND)
 
 include_directories(${ZLIB_INCLUDE_DIR})
-link_directories(${ZLIB_LIBRARIES})
 
 link_directories(${PROJECT_BINARY_DIR}/common ${PROJECT_BINARY_DIR}/hfs)
 
