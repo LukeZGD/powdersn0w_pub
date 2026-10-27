@@ -144,7 +144,7 @@ int buildDmg(AbstractFile* abstractIn, AbstractFile* abstractOut, unsigned int B
     
     abstractIn->seek(abstractIn, 0);
     blkx = insertBLKX(abstractOut, abstractIn, USER_OFFSET, (volumeHeader->totalBlocks * volumeHeader->blockSize)/SECTOR_SIZE,
-                      pNum, CHECKSUM_CRC32, &BlockSHA1CRC, &uncompressedToken, &CRCProxy, &dataForkToken, volume, 1);
+                      pNum, CHECKSUM_CRC32, &BlockSHA1CRC, &uncompressedToken, &CRCProxy, &dataForkToken, volume);
     
     blkx->checksum.data[0] = uncompressedToken.crc;
     printf("Inserting main blkx...\n"); fflush(stdout);
@@ -348,7 +348,7 @@ int convertToDMG(AbstractFile* abstractIn, AbstractFile* abstractOut) {
             
             abstractIn->seek(abstractIn, partitions[i].pmPyPartStart * BlockSize);
             blkx = insertBLKX(abstractOut, abstractIn, partitions[i].pmPyPartStart, partitions[i].pmPartBlkCnt, i, CHECKSUM_CRC32,
-                              &BlockCRC, &uncompressedToken, &CRCProxy, &dataForkToken, NULL, 1);
+                              &BlockCRC, &uncompressedToken, &CRCProxy, &dataForkToken, NULL);
             
             blkx->checksum.data[0] = uncompressedToken.crc;
             resources = insertData(resources, "blkx", i, partitionName, (const char*) blkx, sizeof(BLKXTable) + (blkx->blocksRunCount * sizeof(BLKXRun)), ATTRIBUTE_HDIUTIL);
@@ -384,12 +384,13 @@ int convertToDMG(AbstractFile* abstractIn, AbstractFile* abstractOut) {
         printf("No DDM! Just doing one huge blkx then...\n"); fflush(stdout);
         
         fileLength = abstractIn->getLength(abstractIn);
+        numSectors = fileLength/SECTOR_SIZE;
         
         memset(&uncompressedToken, 0, sizeof(uncompressedToken));
         
         abstractIn->seek(abstractIn, 0);
-        blkx = insertBLKX(abstractOut, abstractIn, 0, fileLength/SECTOR_SIZE, ENTIRE_DEVICE_DESCRIPTOR, CHECKSUM_CRC32,
-                          &BlockCRC, &uncompressedToken, &CRCProxy, &dataForkToken, NULL, 1);
+        blkx = insertBLKX(abstractOut, abstractIn, 0, numSectors, ENTIRE_DEVICE_DESCRIPTOR, CHECKSUM_CRC32,
+                          &BlockCRC, &uncompressedToken, &CRCProxy, &dataForkToken, NULL);
         blkx->checksum.data[0] = uncompressedToken.crc;
         resources = insertData(resources, "blkx", 0, "whole disk (unknown partition : 0)", (const char*) blkx, sizeof(BLKXTable) + (blkx->blocksRunCount * sizeof(BLKXRun)), ATTRIBUTE_HDIUTIL);
         free(blkx);

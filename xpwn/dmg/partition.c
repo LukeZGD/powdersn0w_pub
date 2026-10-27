@@ -514,7 +514,7 @@ int writeDriverDescriptorMap(int pNum, AbstractFile* file, DriverDescriptorRecor
     bufferFile = createAbstractFileFromMemory((void**)&buffer, DDM_SIZE * BlockSize);
     
     blkx = insertBLKX(file, bufferFile, DDM_OFFSET, DDM_SIZE, DDM_DESCRIPTOR, CHECKSUM_CRC32, &CRCProxy, &uncompressedToken,
-                      dataForkChecksum, dataForkToken, NULL, 0);
+                      dataForkChecksum, dataForkToken, NULL);
     
     blkx->checksum.data[0] = uncompressedToken.crc;
     
@@ -552,7 +552,7 @@ int writeApplePartitionMap(int pNum, AbstractFile* file, Partition* partitions, 
     bufferFile = createAbstractFileFromMemory((void**)&buffer, realPartitionSize);
     
     blkx = insertBLKX(file, bufferFile, PARTITION_OFFSET * BlockSize / SECTOR_SIZE, realPartitionSize / SECTOR_SIZE, pNum, CHECKSUM_CRC32,
-                      &BlockCRC, &uncompressedToken, dataForkChecksum, dataForkToken, NULL, 0);
+                      &BlockCRC, &uncompressedToken, dataForkChecksum, dataForkToken, NULL);
     
     bufferFile->close(bufferFile);
     
@@ -606,12 +606,12 @@ int writeATAPI(int pNum, AbstractFile* file, unsigned int BlockSize, ChecksumFun
     if(BlockSize != SECTOR_SIZE)
     {
         blkx = insertBLKX(file, bufferFile, ATAPI_OFFSET, BlockSize / SECTOR_SIZE, pNum, CHECKSUM_CRC32,
-                          &BlockCRC, &uncompressedToken, dataForkChecksum, dataForkToken, NULL, 0);
+                          &BlockCRC, &uncompressedToken, dataForkChecksum, dataForkToken, NULL);
     }
     else
     {
         blkx = insertBLKX(file, bufferFile, ATAPI_OFFSET, ATAPI_SIZE, pNum, CHECKSUM_CRC32,
-                          &BlockCRC, &uncompressedToken, dataForkChecksum, dataForkToken, NULL, 0);
+                          &BlockCRC, &uncompressedToken, dataForkChecksum, dataForkToken, NULL);
     }
     
     bufferFile->close(bufferFile);

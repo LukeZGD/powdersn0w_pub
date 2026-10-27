@@ -328,7 +328,7 @@ extern "C" {
     void extractBLKX(AbstractFile* in, AbstractFile* out, BLKXTable* blkx);
     BLKXTable* insertBLKX(AbstractFile* out, AbstractFile* in, uint32_t firstSectorNumber, uint32_t numSectors, uint32_t blocksDescriptor,
                           uint32_t checksumType, ChecksumFunc uncompressedChk, void* uncompressedChkToken, ChecksumFunc compressedChk,
-                          void* compressedChkToken, Volume* volume, int addComment);
+                          void* compressedChkToken, Volume* volume);
     
     
     int extractDmg(AbstractFile* abstractIn, AbstractFile* abstractOut, int partNum);
