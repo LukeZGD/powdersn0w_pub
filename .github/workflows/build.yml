@@ -14,26 +14,31 @@ jobs:
     runs-on: ${{ matrix.arch.runner }}
 
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v7
 
       - name: Run compile script
         run: |
           cd ./xpwn
-          ./compile.sh
+          ./compile.sh all
           mv bin/ ..
           cd ..
 
-      - name: Zip files
-        run: zip -r powdersn0w_linux-${{ matrix.arch.name }}.zip bin/
+      - uses: actions/upload-artifact@v7
+        with:
+          name: powdersn0w_linux-${{ matrix.arch.name }}
+          path: bin/
 
-      - name: Update latest release
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          gh release upload latest \
-            powdersn0w_linux-${{ matrix.arch.name }}.zip \
-            --clobber -R ${{ github.repository }}
-
-          gh release edit latest \
-            --title "Latest" \
-            --target ${{ github.sha }} -R ${{ github.repository }}
+      # - name: Zip files
+      #   run: zip -r powdersn0w_linux-${{ matrix.arch.name }}.zip bin/
+      #
+      # - name: Update latest release
+      #   env:
+      #     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      #   run: |
+      #     gh release upload latest \
+      #       powdersn0w_linux-${{ matrix.arch.name }}.zip \
+      #       --clobber -R ${{ github.repository }}
+      #
+      #     gh release edit latest \
+      #       --title "Latest" \
+      #       --target ${{ github.sha }} -R ${{ github.repository }}
