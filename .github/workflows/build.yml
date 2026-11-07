@@ -14,7 +14,7 @@ jobs:
     runs-on: ${{ matrix.arch.runner }}
 
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v7
 
       - name: Run compile script
         run: |
@@ -22,6 +22,11 @@ jobs:
           ./compile.sh
           mv bin/ ..
           cd ..
+
+      # - uses: actions/upload-artifact@v7
+      #   with:
+      #     name: powdersn0w-${{ github.ref_name }}_linux-${{ matrix.arch.name }}
+      #     path: bin/
 
       - name: Zip files
         run: zip -r powdersn0w_linux-${{ matrix.arch.name }}.zip bin/
